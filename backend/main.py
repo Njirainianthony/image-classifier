@@ -61,6 +61,31 @@ else:
     print("NO SUCH MODEL")
 
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# Define the list of allowed frontend origins
+origins = [
+    "*"
+]
+
+# Add the CORS middleware to your application
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,         # Enforces the specified domains list
+    allow_credentials=True,        # Permits cookies and authentication headers
+    allow_methods=["*"],           # Allows all standard HTTP methods
+    allow_headers=["*"],           # Allows all request headers
+)
+
+@app.get("/")
+def read_root():
+    return {"message": "CORS configuration is active!"}
+
+
+
 
 #API NDIO HII HAPA
 

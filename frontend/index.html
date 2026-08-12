@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Bench — Prediction Accuracy Tester</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="frontend.css">
+</head>
+<body>
+
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__mark">◎</span>
+      <div class="topbar__text">
+        <h1>Model Bench</h1>
+        <p class="topbar__sub">image classifier · accuracy tester</p>
+      </div>
+    </div>
+    <div class="topbar__stats" id="sessionStats">
+      <div class="stat">
+        <span class="stat__value" id="statTotal">0</span>
+        <span class="stat__label">tested</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value" id="statAccuracy">—</span>
+        <span class="stat__label">accuracy</span>
+      </div>
+      <button id="resetStats" class="btn btn--ghost" title="Clear session results">reset</button>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <!-- LEFT: upload / preview -->
+    <section class="panel panel--upload">
+      <h2 class="panel__title"><span>01</span> Load image</h2>
+
+      <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload an image to classify">
+        <div class="dropzone__frame">
+          <span class="corner corner--tl"></span>
+          <span class="corner corner--tr"></span>
+          <span class="corner corner--bl"></span>
+          <span class="corner corner--br"></span>
+
+          <img id="previewImg" class="dropzone__preview" alt="" hidden>
+
+          <div id="dropzoneEmpty" class="dropzone__empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5"/>
+              <path d="M7 9l5-5 5 5"/>
+              <path d="M12 4v13"/>
+            </svg>
+            <p>Drop a photo here</p>
+            <p class="dropzone__hint">or click to browse your files</p>
+          </div>
+        </div>
+      </div>
+
+      <input type="file" id="fileInput" accept="image/*" hidden>
+
+      <div class="upload__actions">
+        <button id="browseBtn" class="btn btn--primary">Choose photo</button>
+        <button id="cameraBtn" class="btn btn--secondary" title="Use device camera if available">Use camera</button>
+      </div>
+
+      <p id="fileMeta" class="file-meta"></p>
+    </section>
+
+    <!-- RIGHT: predictions -->
+    <section class="panel panel--results">
+      <h2 class="panel__title"><span>02</span> Prediction</h2>
+
+      <div id="resultsEmpty" class="results-empty">
+        <p>No image loaded yet.</p>
+        <p class="results-empty__hint">Predictions from your model will appear here, ranked by confidence.</p>
+      </div>
+
+      <div id="resultsBody" class="results-body" hidden>
+
+        <div id="loadingState" class="loading" hidden>
+          <span class="loading__bar"></span>
+          <span class="loading__label">Running inference…</span>
+        </div>
+
+        <ul id="predictionList" class="prediction-list" aria-live="polite"></ul>
+
+        <div class="verify" id="verifySection" hidden>
+          <p class="verify__prompt">Was the top prediction correct?</p>
+          <div class="verify__actions">
+            <button class="btn btn--correct" id="markCorrect">✓ Correct</button>
+            <button class="btn btn--incorrect" id="markIncorrect">✕ Incorrect</button>
+          </div>
+          <div class="verify__label-input" id="trueLabelWrap" hidden>
+            <label for="trueLabelInput">What's the actual label?</label>
+            <div class="verify__label-row">
+              <input type="text" id="trueLabelInput" placeholder="e.g. golden retriever" autocomplete="off">
+              <button id="submitTrueLabel" class="btn btn--secondary btn--small">Save</button>
+            </div>
+          </div>
+          <p class="verify__saved" id="verifySaved" hidden>Logged — thanks.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- LOG -->
+  <section class="panel panel--log">
+    <div class="panel__title-row">
+      <h2 class="panel__title"><span>03</span> Test log</h2>
+      <button id="exportLog" class="btn btn--ghost btn--small">export CSV</button>
+    </div>
+    <div class="log-table-wrap">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Thumb</th>
+            <th>Predicted</th>
+            <th>Confidence</th>
+            <th>Result</th>
+            <th>True label</th>
+          </tr>
+        </thead>
+        <tbody id="logBody">
+          <tr class="log-table__empty-row" id="logEmptyRow">
+            <td colspan="6">Results you verify will be recorded here for this session.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Model Bench — connect your own model in <code>dynamic.js</code> (see <code>runInference()</code>). Runs entirely client-side; no images leave the browser.</p>
+  </footer>
+
+  <script src="dynamic.js"></script>
+</body>
+</html>
