@@ -108,7 +108,7 @@
      randomized mock predictions so the UI is fully testable.
   ---------------------------------------------------------- */
 
- const PREDICT_ENDPOINT = "http://127.0.0.1:8000/predict";
+ const PREDICT_ENDPOINT = "https://image-classifier-mudd.onrender.com";
 
 async function runInference(imageEl) {
 
