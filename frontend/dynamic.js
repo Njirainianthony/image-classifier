@@ -108,37 +108,44 @@
      randomized mock predictions so the UI is fully testable.
   ---------------------------------------------------------- */
 
-  const PREDICT_ENDPOINT = 'http://127.0.0.1:8000/predict';
+ const PREDICT_ENDPOINT = "http://127.0.0.1:8000/predict";
 
-  async function runInference(imageEl) {
-    // Calls the local model server. The server is expected to return:
-    //   { "prediction": "car", "confidence": 0.85 }
-    //
-    // The image is sent as multipart/form-data under the field name
-    // "image". If your endpoint expects a different field name, change
-    // the formData.append() key below to match.
+async function runInference(imageEl) {
 
-    const blob = await (await fetch(imageEl.src)).blob();
+    const imageResponse = await fetch(imageEl.src);
+    const blob = await imageResponse.blob();
+
     const formData = new FormData();
-    formData.append('file', blob, currentImage.name || 'upload.png');
+    formData.append("image", blob, "upload.png");
+
+    console.log("Sending image to:", PREDICT_ENDPOINT);
 
     const res = await fetch(PREDICT_ENDPOINT, {
-      method: 'POST',
-      body: formData
+        method: "POST",
+        body: formData
     });
 
+    console.log("Status:", res.status);
+
     if (!res.ok) {
-      throw new Error(`Prediction server responded with ${res.status}`);
+        const errorText = await res.text();
+        console.error("Backend error:", errorText);
+
+        throw new Error(
+            `Prediction server responded with ${res.status}`
+        );
     }
 
     const data = await res.json();
 
-    // Normalize the server's single-label response into the
-    // { label, confidence } list format the UI renders.
+    console.log("Prediction response:", data);
+
+    // Normalize the server's { prediction, confidence } shape into the
+    // array format renderPredictions()/logResult() expect.
     return [
       { label: data.prediction, confidence: data.confidence }
     ];
-  }
+}
 
   /* Example helper for Option A above — loads the tf.js model once
      and caches it, so you're not re-loading it on every prediction. */

@@ -64,43 +64,32 @@ else:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(title="CIFAR-10")
 
 # Define the list of allowed frontend origins
 origins = [
-    "*"
-]
+        "*",
+    ]
 
 # Add the CORS middleware to your application
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,         # Enforces the specified domains list
-    allow_credentials=True,        # Permits cookies and authentication headers
+    allow_credentials=False,       # must be False when allow_origins is "*"
     allow_methods=["*"],           # Allows all standard HTTP methods
     allow_headers=["*"],           # Allows all request headers
 )
 
 @app.get("/")
-def read_root():
-    return {"message": "CORS configuration is active!"}
-
-
-
-
-#API NDIO HII HAPA
-
-app = FastAPI(title="CIFAR-10")
-
-@app.get('/')
 def root():
     return {"message": "Welcome to the CIFAR-10 Prediction API"}
 
 @app.post('/predict')
-def predict(file: UploadFile=File(...)):
-    if not file.filename or not file.filename.lower().endswith((".png", ".jpg", ".jpeg")):
+def predict(image: UploadFile=File(...)):
+    if not image.filename or not image.filename.lower().endswith((".png", ".jpg", ".jpeg")):
         raise HTTPException(status_code=400, detail="Please upload a valid image")
     try:
-        contents = file.file.read()
+        contents = image.file.read()
         image = Image.open(BytesIO(contents)).convert('RGB')
 
     except Exception:
@@ -114,13 +103,3 @@ def predict(file: UploadFile=File(...)):
         confidence, predicted = torch.max(probabilities, 1)
 
     return {"prediction": classes[predicted.item()], "confidence": confidence.item()}
-
-
-
-
-
-
-
-
-
-
